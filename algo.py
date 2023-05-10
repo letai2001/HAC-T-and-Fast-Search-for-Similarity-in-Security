@@ -4,10 +4,7 @@ import numpy as np
 from sklearn.neighbors import KDTree
 import random
 
-S = {'00a2924222061bb2814f1ba9dfec8164': 'T120C45D3CABAC0379D073813CC5A88132FA7274682B2196CF51A4913D5E2FEF46A79B51'}
 
-with open('tlsh.json', 'r') as f:
-    tlsh_dict = json.load(f)
     # for filename, hash_value in tlsh_dict.items():
     #     print(f"Giá trị TLSH của tệp tin {filename}: {hash_value}")
     
@@ -52,7 +49,6 @@ def SplitMethod(N, nitemsInLeaf):
     X2 = {xi_key: xi_hash for xi_key, xi_hash in N.data.items() if tlsh.diff(Y_hash, xi_hash) > T}
 
     return (Y, T, X1, X2)
-N1 = Node(tlsh_dict , split=None, threshold=None, lc=None, rc=None )
 
 def TreeBuild(N, nitemsInLeaf  ):
     # Split N into Y, T, X1, X2
@@ -68,7 +64,6 @@ def TreeBuild(N, nitemsInLeaf  ):
         TreeBuild(N.rc, nitemsInLeaf)
         
     return N
-K = TreeBuild(N1 , 2)
 def print_tree(node):
     if node is not None:
         print(node.data)
@@ -81,13 +76,13 @@ def print_tree(node):
         print_tree(node.lc)
 # print_tree(K)
 def isLeaf(N):
-    return len(N)<=3 
+    return len(N.data)<=3 
 
 def closestItem(N, S):
     # myDict = N.lc.copy()
     # myDict = N.lc.update(N.rc)
     closest = (None, float('inf'))
-    for file, hashval in N.items():
+    for file, hashval in N.data.items():
         dist = tlsh.diff(hashval , S[list(S.keys())[0]])
         if dist < closest[1]:
             closest = (file, dist)
@@ -98,10 +93,10 @@ def closestItem(N, S):
 def Dist(X, S):
     return tlsh.diff(list(X.values())[0],list(S.values())[0])
 def Search(N, S):
-    data = N.data
+    
     # print('data: ' , data)
-    if isLeaf(data):
-        X , d = closestItem(data, S)
+    if isLeaf(N):
+        X , d = closestItem(N, S)
         return (X,d)
     else:
         thisDist = Dist(N.split, S)
@@ -110,6 +105,17 @@ def Search(N, S):
             return Search(N.lc, S)
         else:
             return Search(N.rc, S)
-K1 = Search(K, S)
+def main():
+    S = {'00a2924222061bb2814f1ba9dfec8164': 'T120C45D3CABAC0379D073813CC5A88132FA7274682B2196CF51A4913D5E2FEF46A79B51'}
+    with open('tlsh.json', 'r') as f:
+        tlsh_dict = json.load(f)
+    N1 = Node(tlsh_dict , split=None, threshold=None, lc=None, rc=None )
+    K = TreeBuild(N1 , 2)
+    K1 = Search(K, S)
+    print(K1)
 
-print(K)
+    
+
+
+if __name__ == '__main__':
+    main()

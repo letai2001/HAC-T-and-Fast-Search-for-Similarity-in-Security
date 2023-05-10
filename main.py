@@ -9,13 +9,13 @@ from sklearn.neighbors import BallTree
 from scipy.spatial import distance
 
 # Đường dẫn đến thư mục chứa các tệp tin
-path = r'C:\\Users\\Admin\\Downloads\\tlsh_train\\data_test'
+path = r'C:\\Users\\Admin\\Downloads\\C++'
 
 # Tạo một từ điển để lưu giá trị TLSH của các tệp tin
 tlsh_dict = {}
 def tlsh_distance(x, y):
     return tlsh.diff(x, y)
-
+i = 0
 # Lặp qua tất cả các tệp tin trong thư mục và tính giá trị TLSH
 for filename in os.listdir(path):
     # Đường dẫn đầy đủ của tệp tin
@@ -29,9 +29,13 @@ for filename in os.listdir(path):
             hash_value = tlsh.hash(data)
             # Lưu giá trị TLSH vào từ điển
             tlsh_dict[filename] = hash_value
+            i+=1
+            print(i)
+            print('filename: ' + filename)
+            print('hash_value: ' + hash_value)
 
 # Ghi giá trị TLSH vào tệp JSON
-with open('tlsh.json', 'w') as f:
+with open('tlsh1.json', 'w') as f:
     json.dump(tlsh_dict, f)
 # Đọc giá trị TLSH từ tệp JSON và in chúng ra
 # with open('tlsh.json', 'r') as f:
