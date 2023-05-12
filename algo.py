@@ -7,7 +7,8 @@ import random
 
     # for filename, hash_value in tlsh_dict.items():
     #     print(f"Giá trị TLSH của tệp tin {filename}: {hash_value}")
-    
+with open('tlsh.json', 'r') as f:
+        tlsh_dict = json.load(f)
 class Node:
     def __init__(self,data = None ,  split=None, threshold=None, lc=None, rc=None):
         self.data = data
@@ -93,8 +94,6 @@ def closestItem(N, S):
 def Dist(X, S):
     return tlsh.diff(list(X.values())[0],list(S.values())[0])
 def Search(N, S):
-    
-    # print('data: ' , data)
     if isLeaf(N):
         X , d = closestItem(N, S)
         return (X,d)
@@ -107,15 +106,17 @@ def Search(N, S):
             return Search(N.rc, S)
 def main():
     S = {'00a2924222061bb2814f1ba9dfec8164': 'T120C45D3CABAC0379D073813CC5A88132FA7274682B2196CF51A4913D5E2FEF46A79B51'}
-    with open('tlsh.json', 'r') as f:
-        tlsh_dict = json.load(f)
+    
     N1 = Node(tlsh_dict , split=None, threshold=None, lc=None, rc=None )
     K = TreeBuild(N1 , 2)
     K1 = Search(K, S)
     print(K1)
 
     
-
+# def HAC_T(D, CDist):
+#     node_root = Node(data=tlsh_dict)
+#     toot = TreeBuild(node_root, 3)
+    
 
 if __name__ == '__main__':
     main()
