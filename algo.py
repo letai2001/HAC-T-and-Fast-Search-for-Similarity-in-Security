@@ -1,13 +1,13 @@
 import tlsh
 import json
 import numpy as np
-from sklearn.neighbors import KDTree
+# from sklearn.neighbors import KDTree
 import random
 
 
     # for filename, hash_value in tlsh_dict.items():
     #     print(f"Giá trị TLSH của tệp tin {filename}: {hash_value}")
-with open('tlsh.json', 'r') as f:
+with open('tlsh1.json', 'r') as f:
         tlsh_dict = json.load(f)
 class Node:
     def __init__(self,data = None ,  split=None, threshold=None, lc=None, rc=None):
@@ -77,16 +77,17 @@ def print_tree(node):
         print_tree(node.lc)
 # print_tree(K)
 def isLeaf(N):
-    return len(N.data)<=3 
+    return len(N.data)<=101
 
 def closestItem(N, S):
     # myDict = N.lc.copy()
     # myDict = N.lc.update(N.rc)
     closest = (None, float('inf'))
     for file, hashval in N.data.items():
-        dist = tlsh.diff(hashval , S[list(S.keys())[0]])
-        if dist < closest[1]:
-            closest = (file, dist)
+        if file != list(S.keys())[0]:
+            dist = tlsh.diff(hashval , S[list(S.keys())[0]])
+            if dist < closest[1]:
+                closest = (file, dist)
 
 
     return closest
@@ -94,6 +95,8 @@ def closestItem(N, S):
 def Dist(X, S):
     return tlsh.diff(list(X.values())[0],list(S.values())[0])
 def Search(N, S):
+
+
     if isLeaf(N):
         X , d = closestItem(N, S)
         return (X,d)
@@ -107,16 +110,49 @@ def Search(N, S):
 def main():
     S = {'00a2924222061bb2814f1ba9dfec8164': 'T120C45D3CABAC0379D073813CC5A88132FA7274682B2196CF51A4913D5E2FEF46A79B51'}
     
-    N1 = Node(tlsh_dict , split=None, threshold=None, lc=None, rc=None )
-    K = TreeBuild(N1 , 2)
-    K1 = Search(K, S)
-    print(K1)
+    # N1 = Node(tlsh_dict , split=None, threshold=None, lc=None, rc=None )
+    # K = TreeBuild(N1 , 2)
+    # K1 = Search(K, S)
+    # print(K1)
+    CDist = 1000
+    tlsh_dict_test = dict(list(tlsh_dict.items())[:1000])
+    print(HAC_T(tlsh_dict , CDist))
 
     
 # def HAC_T(D, CDist):
 #     node_root = Node(data=tlsh_dict)
 #     toot = TreeBuild(node_root, 3)
-    
+def HAC_T(D, CDist):
+    # Step 1: Preprocess data
+    ListPair = {}
+    for d in range(CDist+1):
+        ListPair[d] = []
+    N1 = Node(D, split=None, threshold=None, lc=None, rc=None)
+    root = TreeBuild(N1, 100)
+
+    for A in D.items():
+        dict_A = {A[0]: A[1]}
+        myroot = root
+        (B, d) = Search(myroot, dict_A)
+        if d < CDist:
+            ListPair[d].append((A[0],B))
+
+    # Step 2: Cluster data
+    clusters = {}
+    for A in D.items():
+        clusters[A[0]] = set([A[0]])
+
+    for d in range(CDist+1):
+        for (X1,X2) in ListPair[d]:
+            if clusters[X1] != clusters[X2]:
+                clusters[X1].update(clusters[X2])
+                for item in clusters[X2]:
+                    clusters[item] = clusters[X1]
+
+    num_clusters = len(set([tuple(sorted(items)) for items in clusters.values()]))
+    print(num_clusters)
+    # Return the final clusters
+    return list[set([tuple(sorted(items)) for items in clusters.values()])]
 
 if __name__ == '__main__':
     main()
